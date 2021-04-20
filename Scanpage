@@ -1,0 +1,559 @@
+import android.Manifest;
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Build;
+import android.os.Environment;
+import android.os.Handler;
+import android.os.StrictMode;
+import android.preference.PreferenceManager;
+import android.provider.DocumentsContract;
+import android.provider.MediaStore;
+import android.support.annotation.RequiresApi;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.FileProvider;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
+import org.ksoap2.SoapEnvelope;
+import org.ksoap2.serialization.SoapObject;
+import org.ksoap2.serialization.SoapSerializationEnvelope;
+import org.ksoap2.transport.HttpTransportSE;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import static com.example.best.y_math.FileUtil.isDownloadsDocument;
+import static com.example.best.y_math.FileUtil.isExternalStorage
+Document;
+public class Equ extends AppCompatActivity implements View.
+OnClickListener {
+String equat,result=null;
+private final int RESPONSE_OK = 200;
+private static final int CAMERA_CODE = 101, GALLERY_CODE = 201,
+CROPING_CODE = 301;
+private Uri mImageCaptureUri;
+private File outPutFile = null;
+TextView tv;
+private String apiKey="SZa3JDvEmf";
+String fpth="";
+String y="";
+EditText equation;
+ImageButton upload;
+Button send,image,image2;
+ImageView view;
+String namespace = "http://tempuri.org/";
+String method = "solve";
+String soapaction = "http://tempuri.org/solve";
+String url = "";
+private File createImageFile() throws IOException {
+String timeStamp =
+new SimpleDateFormat("yyyyMMdd_HHmmss",
+Locale.getDefault()).format(new Date());
+String imageFileName = "IMG_" + timeStamp + "_";
+File storageDir =
+getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+File image = File.createTempFile(
+imageFileName, /* prefix */
+".jpg", /* suffix */
+storageDir /* directory */
+);
+}
+@RequiresApi(api = Build.VERSION_CODES.KITKAT)
+public static String getRealPathFromURI_API19(Context context, Uri uri) {
+String filePath = "";
+if (isExternalStorageDocument(uri)) {
+final String docId =
+DocumentsContract.getDocumentId(uri);
+final String[] split = docId.split(":");
+final String type = split[0];
+if ("primary".equalsIgnoreCase(type)) {
+return Environment.getExternalStorageDirectory() + "/" + split[1];
+}
+else {
+if (Build.VERSION.SDK_INT > 20) {
+File extenal[] =
+context.getExternalMediaDirs();
+if (extenal.length > 1) {
+filePath = extenal[1].getAbsolutePath();
+filePath = filePath.substring(0,
+filePath.indexOf("Android")) + split[1];
+} }
+else{
+filePath = "/storage/" + type + "/" + split[1];
+}
+return filePath;
+} }
+else if (isDownloadsDocument(uri)) {
+Cursor cursor = null;
+final String column = "_data";
+final String[] projection = {column};
+try {
+cursor = context.getContentResolver().query(uri,projection, null, null, null);
+if (cursor != null && cursor.moveToFirst()) {
+final int index = cursor.
+getColumnIndexOrThrow(column);
+String result = cursor.getString(index);
+cursor.close();
+return result;
+} }
+finally {
+if (cursor != null)
+cursor.close();
+} }
+else if (DocumentsContract.isDocumentUri(context, uri)) {
+String[] ids = wholeID.split(":");
+String id;
+String type;
+if (ids.length > 1) {
+id = ids[1];
+type = ids[0];
+} else {
+id = ids[0];
+type = ids[0];
+}
+Uri contentUri = null;
+if ("image".equals(type)) {
+content Uri MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+}
+else if ("video".equals(type)) {
+contentUri=MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
+}
+else if ("audio".equals(type)) {
+contentUri=MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+}
+final String selection = "_id=?";
+final String[] selectionArgs = new String[]{id};
+final String column = "_data";
+final String[] projection = {column};
+Cursor cursor= context.getContentResolver().query(contentUri,
+projection, selection, selectionArgs, null);
+if (cursor != null) {
+int columnIndex = cursor.getColumnIndex(column);
+if (cursor.moveToFirst()) {
+filePath = cursor.getString(columnIndex);
+}cursor.close();
+}
+return filePath;
+}
+else {
+String[] proj = {MediaStore.Audio.Media.DATA};
+Cursor cursor = context.getContentResolver().query(uri, proj,null, null, null);
+if (cursor != null) {
+int column_index = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA);
+if (cursor.moveToFirst())
+filePath = cursor.getString(column_index);
+cursor.close();
+}
+return filePath;
+}
+return null;
+}
+@RequiresApi(api = Build.VERSION_CODES.KITKAT)
+@Override
+protected void onActivityResult(int requestCode, int
+resultCode , Intent data) {
+super.onActivityResult(requestCode, resultCode, data);
+Toast.makeText(getApplicationContext(),requestCode+"",Toast.LENGTH_SHORT).show();
+if (requestCode == GALLERY_CODE && resultCode == RESULT_OK && null
+!= data)
+{
+try {
+mImageCaptureUri = data.getData();
+System.out.println("Gallery Image URI : "+mImageCaptureUri);
+String s=
+getRealPathFromURI_API19(getApplicationContext(),mImageCaptureUri);
+Toast.makeText(getApplicationContext(),s,Toast.LENGTH_SHORT).show();
+File f1=new File(s);
+fpth=s;
+if(f1.exists())
+{
+Toast.makeText(getApplicationContext(),"File
+available",Toast.LENGTH_SHORT).show();
+try {
+FileInputStream i=new FileInputStream(f1);
+Toast.makeText(getApplicationContext(),
+f1.length()+"",Toast.LENGTH_SHORT).show();
+Bitmap b=BitmapFactory.decodeResource
+(getResources(),R.drawable.bgsign);
+RoundedBitmapDrawable a=
+RoundedBitmapDrawableFactory.create(getResources(),b);
+a.setCircular(true);
+view.setImageDrawable(a);
+}
+catch (Exception e){
+Toast.makeText(getApplicationContext(),e.getMessage(
+),Toast.LENGTH_SHORT).show();
+} }
+else
+{
+Toast.makeText(getApplicationContext(),"Filenot
+available",Toast.LENGTH_SHORT).show();
+}
+Bitmap photo= decodeFile(f1);
+Toast.makeText(getApplicationContext(),"photo="+photo,Toast.LENGTH_LONG).show();
+}{
+catch (Exception e) {
+e.printStackTrace();
+} }
+else if (requestCode == CAMERA_CODE && resultCode ==
+Activity.RESULT_OK) {
+try
+{
+if(Build.VERSION.SDK_INT>= Build.VERSION_CODES.N)
+{
+File fl = new File(pathnn);
+int ln = (int) fl.length();
+fpth=pathnn;
+Bitmap bm = BitmapFactory.decodeFile(fpth);
+RoundedBitmapDrawable a=
+RoundedBitmapDrawableFactory.create(getResources(),bm);
+a.setCircular(true);
+view.setImageDrawable(a);
+} e
+lse
+{
+if(mImageCaptureUri==null)
+{
+Toast.makeText(getApplicationContext(),"Null",Toast.LENGTH_LONG).show();
+}
+else
+{
+Toast.makeText(getApplicationContext(),"NOtNull"+mImageCaptureUri.getEncodedPath(),Toast.LENGTH_LONG).show();
+}
+Uri uri =mImageCaptureUri;
+try {
+String photo = FileUtils.getPath(this, uri);
+File fl = new File(photo);
+int ln = (int) fl.length();
+fpth=photo
+Bitmap bm = BitmapFactory.decodeFile(photo);
+RoundedBitmapDrawablea=
+RoundedBitmapDrawableFactory.create(getResources(),bm);
+a.setCircular(true);
+view.setImageDrawable(a);
+}
+catch(Exception ex)
+{
+Toast.makeText(getApplicationContext(),"Errror"+ex.getMessage(),T
+oast.LENGTH_LONG).show }
+} }
+catch (Exception e) {Toast.makeText(getApplicationContext(),"Error",Toast.LENGTH_SHORT).show();
+}
+} else if (requestCode == CROPING_CODE) {
+try {
+if(outPutFile.exists()){
+Bitmap photo = decodeFile(outPutFile);
+RoundedBitmapDrawablea=
+zoundedBitmapDrawableFactory.create(getResources(),photo);
+a.setCircular(true);
+view.setImageDrawable(a);
+fpth=outPutFile.getPath();
+}
+else {
+Toast.makeText(getApplicationContext(), "Error while save image",
+Toast.LENGTH_SHORT).show();
+} }
+catch (Exception e) {
+e.printStackTrace();
+} } }
+private static final int CAMERA_CAPTURE_IMAGE_REQUEST_CODE = 100;
+private static final int CAMERA_CAPTURE_VIDEO_REQUEST_CODE = 200;
+public static final int MEDIA_TYPE_IMAGE = 1;
+public static final int MEDIA_TYPE_VIDEO = 2;
+private static final String IMAGE_DIRECTORY_NAME = "Hello Camera";
+private Uri fileUri;
+private void captureImage() 
+{
+Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+fileUri = getOutputMediaFileUri(MEDIA_TYPE_IMAGE);
+intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
+startActivityForResult(intent, CAMERA_CODE);
+}
+public Uri getOutputMediaFileUri(int type) {
+return Uri.fromFile(getOutputMediaFile(type));
+}
+private static File getOutputMediaFile(int type) {
+File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),IMAGE_DIRECTORY_NAME);
+if (!mediaStorageDir.exists()) {
+if (!mediaStorageDir.mkdirs()) {
+Log.d(IMAGE_DIRECTORY_NAME, "Oops! Failed create "
++ IMAGE_DIRECTORY_NAME + " directory");
+return null;
+} }
+String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss",
+Locale.getDefault()).format(new Date());
+File mediaFile;
+if (type == MEDIA_TYPE_IMAGE) {
+mediaFile = new File(mediaStorageDir.getPath() + File.separator
++ "IMG_" + timeStamp + ".jpg");
+} else if (type == MEDIA_TYPE_VIDEO) {
+mediaFile = new File(mediaStorageDir.getPath() + File.separator
++ "VID_" + timeStamp + ".mp4");
+} else {
+return null;
+}
+return mediaFile;
+}
+private Bitmap decodeFile(File f) {
+try {
+BitmapFactory.Options o = new BitmapFactory.Options();
+o.inJustDecodeBounds = true;
+BitmapFactory.decodeStream(new FileInputStream(f), null, o);
+final int REQUIRED_SIZE = 512;
+int width_tmp = o.outWidth, height_tmp = o.outHeight;
+int scale = 1;
+while (true) {
+if (width_tmp / 2 < REQUIRED_SIZE || height_tmp / 2 < REQUIRED_SIZE)
+break;
+width_tmp /= 2;
+height_tmp /= 2;
+scale *= 2;
+}
+BitmapFactory.Options o2 = new BitmapFactory.Options();
+o2.inSampleSize = scale;
+return BitmapFactory.decodeStream(new FileInputStream(f), null, o2);
+} catch (FileNotFoundException e) {
+}
+return null;
+}
+public void EnableRuntimePermission(){
+if (ActivityCompat.shouldShowRequestPermissionRationale(Equ.this,
+Manifest.permission.CAMERA))
+{
+Toast.makeText(Equ.this,"CAMERA permission allows us to Access CAMERA
+app", Toast.LENGTH_LONG).show();
+} else {
+ActivityCompat.requestPermissions(Equ.this,new String[]{
+Manifest.permission.CAMERA}, 10);
+} }
+public String getRealPathFromURI (Uri contentUri) {
+String path = null;
+String[] proj = { MediaStore.MediaColumns.DATA };
+Cursor cursor = getContentResolver().query(contentUri, proj, null, null, null);
+if (cursor.moveToFirst()) {
+int column_index =
+cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA);
+path = cursor.getString(column_index);
+}
+cursor.close();
+return path;
+}
+String pathnn = "";
+private void selectImageOption()
+{
+Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+Uri photoURI = null;
+File f = new File(Environment.getExternalStorageDirectory(), "temp1.jpg");
+File photoFile =f;// createImageFileWith();
+pathnn = photoFile.getAbsolutePath();
+photoURI = FileProvider.getUriForFile(Equ.this,
+getString(R.string.file_provider_authority),
+photoFile);
+takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+startActivityForResult(takePictureIntent, CAMERA_CODE);
+} }
+else {
+File f = null;
+Intentintent=newIntent(android.provider.MediaStore.ACTION_IMAGE_CAPTUR
+E);
+try {
+f = createImageFile();
+mImageCaptureUri = Uri.fromFile(f);
+intent.putExtra(MediaStore.EXTRA_OUTPUT, mImageCaptureUri);
+startActivityForResult(intent, CAMERA_CODE);
+} catch (IOException e) {
+e.printStackTrace();
+} } }
+@Override
+protected void onCreate(Bundle savedInstanceState) {
+super.onCreate(savedInstanceState);
+setContentView(R.layout.activity_equ);
+EnableRuntimePermission();
+// EnableRuntimePermission1();
+//EnableRuntimePermission12();
+upload=(ImageButton) findViewById(R.id.imageButton);
+upload.setOnClickListener(this);
+equation=(EditText) findViewById(R.id.eq);
+equation.setVisibility(view.INVISIBLE);
+image=(Button)findViewById(R.id.button1);
+view=(ImageView)findViewById(R.id.imageView1);
+Bitmap b=BitmapFactory.decodeResource(getResources(),R.mipmap.qlcapture);
+RoundedBitmapDrawable a=
+RoundedBitmapDrawableFactory.create(getResources(),b);
+a.setCircular(true);
+view.setImageDrawable(a);
+send=(Button) findViewById(R.id.sen);
+send.setVisibility(View.INVISIBLE);
+send.setOnClickListener(this);
+image.setOnClickListener(this);
+try
+{
+if(android.os.Build.VERSION.SDK_INT> 9)
+{
+StrictMode.ThreadPolicy th=new
+StrictMode.ThreadPolicy.Builder().permitAll().build();
+android.os.StrictMode.setThreadPolicy(th);
+} }
+catch(Exception ex)
+{ }
+SharedPreferencessh=PreferenceManager.getDefaultSharedPreferences(getApplicat
+ionContext());
+String ip=sh.getString("ip", "");
+url="http://"+ip+"/photomath/WebService.asmx";
+}
+@Override
+public void onClick(View v) {
+if(v==upload){
+Intent i = new Intent(Intent.ACTION_PICK,
+android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+startActivityForResult(i, GALLERY_CODE);
+image.setText("convert");
+}48
+if(v==send){
+equat= equation.getText().toString();
+if(!equat.equals("")){
+new MyTask().execute();
+}
+else {
+equation.setError("please Type Equation");
+} }
+if(v==image) {
+String Buttontext=image.getText().toString();
+if(Buttontext.equals("capture")){
+selectImageOption();
+Handler handler =new Handler();
+handler.postDelayed(new Runnable() {
+@Override
+public void run() {
+image.setText("convert");
+}
+},3000);
+}
+else {
+final String langCode = "en";
+if (fpth != null && !apiKey.equals("") && !langCode.equals("")) {
+final ProgressDialog dialog = ProgressDialog.show( Equ.this, "Loading ...",
+"Converting to text.", true, false);
+final Thread thread = new Thread(new Runnable() {
+@Override
+public void run() {
+final OCRServiceAPI apiClient = new OCRServiceAPI(apiKey);
+apiClient.convertToText(langCode, fpth);
+runOnUiThread(new Runnable() {
+@Override
+public void run() {
+dialog.dismiss();
+y=apiClient.getResponseText()+"";
+if(y.equalsIgnoreCase("")){
+y="No Result";
+}
+final AlertDialog.Builder alert = new AlertDialog.Builder(Equ.this);
+alert.setMessage(y);
+alert.setPositiveButton(
+"OK",
+new DialogInterface.OnClickListener() {
+public void onClick( DialogInterface dialog, int id) {
+Toast.makeText(Equ.this, y+"", Toast.LENGTH_SHORT).show();
+});
+if (apiClient.getResponseCode() == RESPONSE_OK) {
+alert.setTitle("Success");
+equation.setVisibility(view.VISIBLE);
+send.setVisibility(view.VISIBLE);
+equation.setText(y.toString().trim());
+} else {
+alert.setTitle("Faild");
+}
+alert.show();
+}
+});
+}
+});
+thread.start();
+} else {
+Toast.makeText(Equ.this,"Alldataare required.", Toast.LENGTH_SHORT).show();
+}
+Handler handler =new Handler();
+handler.postDelayed(new Runnable() {
+@Override
+public void run() {
+image.setText("capture");
+}
+},2000);
+} } }
+private class MyTask extends AsyncTask<String, Integer, String> {
+ProgressDialog pd;
+String kana;
+@Override
+protected void onPreExecute() {
+super.onPreExecute();
+pd=new ProgressDialog(Equ.this);
+pd.setMessage("wait.....");
+pd.setCancelable(false);
+pd.show();50
+}
+@Override
+protected void onProgressUpdate(Integer... values) {
+super.onProgressUpdate(values);
+}
+@Override
+protected String doInBackground(String... urls) {
+kana= myfunction();
+return kana;
+}
+@Override
+protected void onPostExecute(String result) {
+if(pd != null){
+pd.dismiss();
+}
+if(result!=null) {
+Intent i = new Intent(getApplicationContext(), Result.class);
+i.putExtra("equ", equat);
+startActivity(i);
+}}}
+public String myfunction(){
+equat= equation.getText().toString();
+try{
+SoapObject soap = new SoapObject(namespace, method);
+soap.addProperty("equation",equat);
+SoapSerializationEnvelopesnv=new
+SoapSerializationEnvelope(SoapEnvelope.VER11);
+snv.dotNet = true;
+snv.setOutputSoapObject(soap);
+HttpTransportSE ht = new HttpTransportSE(url);
+ht.call(soapaction, snv);
+result = snv.getResponse().toString();
+SharedPreferencesse=PreferenceManager.getDefaultSharedPreferences(getApplicat
+ionContext());
+SharedPreferences.Editor ed=se.edit();
+ed.putString("out",result);
+ed.commit();
+}
+catch (Exception e){
+Toast.makeText(getApplicationContext(), "error" + e.getMessage(),
+Toast.LENGTH_SHORT).show();
+}
+return result;
+}
