@@ -1,0 +1,183 @@
+package com.example.best.y_math;
+import android.Manifest;
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.Environment;
+import android.os.StrictMode;
+import android.preference.PreferenceManager;
+import android.provider.DocumentsContract;
+import android.provider.MediaStore;
+import android.support.annotation.RequiresApi;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.FileProvider;
+import android.support.v7.widget.CardView;
+import android.util.Log;
+import android.view.View;
+import android.support.design.widget.NavigationView;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
+import org.ksoap2.SoapEnvelope;
+import org.ksoap2.serialization.SoapObject;
+import org.ksoap2.serialization.SoapSerializationEnvelope;
+import org.ksoap2.transport.HttpTransportSE;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import static com.example.best.y_math.FileUtil.isDownloadsDocument;
+import static com.example.best.y_math.FileUtil.isExternalStorageDocument;
+public class Nav extends AppCompatActivity
+implements NavigationView.OnNavigationItemSelectedListener,View.OnClickListener {
+CardView c1,c2,c3,c4,c5,c6;
+String subject="Problem";
+String body="unfortunately stopped";
+String url = "";
+public void EnableRuntimePermission() {
+if (ActivityCompat.shouldShowRequestPermissionRationale(Nav.this,
+
+Manifest.permission.CAMERA)) {
+Toast.makeText(Nav.this, "CAMERA permission allows us to Access
+CAMERA app", Toast.LENGTH_LONG).show();
+} else {
+ActivityCompat.requestPermissions(Nav.this, new String[]{
+Manifest.permission.CAMERA}, 10);
+}
+}
+@Override
+protected void onCreate(Bundle savedInstanceState) {
+super.onCreate(savedInstanceState);
+setContentView(R.layout.activity_nav);
+EnableRuntimePermission();
+c1 = (CardView) findViewById(R.id.id1);
+c2 = (CardView) findViewById(R.id.id2);
+c3 = (CardView) findViewById(R.id.id3);
+c4 = (CardView) findViewById(R.id.id4);
+c5 = (CardView) findViewById(R.id.id5);
+c6 = (CardView) findViewById(R.id.id6);
+c1.setOnClickListener(this);
+c2.setOnClickListener(this);
+c3.setOnClickListener(this);
+c4.setOnClickListener(this);
+c5.setOnClickListener(this);
+c6.setOnClickListener(this);
+image=(Button)findViewById(R.id.button1);
+view=(ImageView)findViewById(R.id.imageView1);
+
+send=(Button) findViewById(R.id.sen);
+image2=(Button)findViewById(R.id.button2);
+image2.setOnClickListener(this);
+image.setOnClickListener(this);
+send.setOnClickListener(this);*/
+try {
+if (android.os.Build.VERSION.SDK_INT > 9) {
+StrictMode.ThreadPolicy th =
+new StrictMode.ThreadPolicy.Builder().permitAll().build();
+android.os.StrictMode.setThreadPolicy(th);
+} }
+catch (Exception ex) {
+}
+SharedPreferencessh=
+PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+String ip = sh.getString("ip", "");
+url = "http://" + ip + "/photomath/WebService.asmx";
+Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+setSupportActionBar(toolbar);
+DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+ActionBarDrawerToggle toggle = new ActionBarDrawerToggle( this, drawer,
+toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+drawer.setDrawerListener(toggle);
+toggle.syncState();
+NavigationViewnavigationView=(NavigationView) findViewById(R.id.nav_view);
+navigationView.setNavigationItemSelectedListener(this);
+}
+@Override
+
+public void onBackPressed() {
+DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+if (drawer.isDrawerOpen(GravityCompat.START)) {
+drawer.closeDrawer(GravityCompat.START);
+} else {
+super.onBackPressed();
+} }
+@Override
+public boolean onCreateOptionsMenu(Menu menu) {
+// Inflate the menu; this adds items to the action bar if it is present.
+getMenuInflater().inflate(R.menu.nav, menu);
+return true;
+}
+@Override
+public boolean onOptionsItemSelected(MenuItem item) {
+int id = item.getItemId();
+return super.onOptionsItemSelected(item);
+}
+@SuppressWarnings("StatementWithEmptyBody")
+@Override
+public boolean onNavigationItemSelected(MenuItem item) {
+int id = item.getItemId();
+if (id == R.id.nav_camera) {
+} else if (id == R.id.nav_share) {
+Intent intent = new Intent(Intent.ACTION_VIEW);
+Uri data = Uri.parse("mailto:qldevelopers@gmail.com?subject=" + subject +
+"&body=" + body);
+
+intent.setData(data);
+startActivity(intent);
+} else if (id == R.id.nav_send) {
+Intent i=new Intent(getApplicationContext(),Aboutus.class);
+startActivity(i);
+}
+DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+drawer.closeDrawer(GravityCompat.START);
+return true;
+}
+@Override
+public void onClick(View v) {
+if (v == c1) {
+Intent i=new Intent(Nav.this,Equ.class);
+startActivity(i);
+}
+if (v == c2) {
+Intent i=new Intent(Nav.this,HomePage.class);
+startActivity(i);
+}
+if (v == c3) {
+Intent i=new Intent(Nav.this,Community.class);
+startActivity(i);
+}
+if (v == c4) {
+Intent i=new Intent(Nav.this,History.class);
+startActivity(i);
+35
+}
+if (v == c5) {
+Intent i=new Intent(Nav.this,Tutorial.class);
+startActivity(i);
+}
+if (v == c6) {
+Intent i=new Intent(Nav.this,Main2Activity.class);
+startActivity(i);
+} } }
