@@ -1,0 +1,36 @@
+package com.example.best.y_math;
+import android.content.Context;
+import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
+public class History extends AppCompatActivity implements View.OnClickListener {
+SQLiteDatabase db;
+TextView a1,a2,a3;
+@Override
+protected void onCreate(Bundle savedInstanceState) {
+super.onCreate(savedInstanceState);
+setContentView(R.layout.activity_history);
+a1=(TextView)findViewById(R.id.textView5) ;
+a2=(TextView)findViewById(R.id.textView7);
+a3=(TextView)findViewById(R.id.view3);
+try{
+db=openOrCreateDatabase("output", Context.MODE_PRIVATE,null);
+Cursor c=db.rawQuery("SELECT * FROM history",null);
+if(c.getCount()==0){
+Toast.makeText(getApplicationContext(),"No history available",Toast.LENGTH_SHORT).show();
+}
+else{
+while (c.moveToNext()){
+a1.setText("Question is "+c.getString(0));
+a2.setText("Answer is = "+c.getString(1));
+} } }
+catch (Exception e){
+Toast.makeText(getApplicationContext(),"No history available",Toast.LENGTH_SHORT).show();
+a1.setText("No History Available");
+} }
