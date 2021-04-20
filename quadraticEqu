@@ -1,0 +1,245 @@
+public string quadratic(String equation)
+{
+String op = "";
+string eq = equation;
+string negate = "";
+string b2 = "";
+string result = "";
+string ValueOfa = "";
+string ValueOfb = "";
+string ValueOfc = "";
+string rootzero = "";
+string twoanswer = "";
+string firstanswer = "";
+string secondanswer = "";
+string newresult = "";
+string answer1 = "";
+string answer2 = "";
+string finalout = "";
+string thirdanswer = "";
+string first1 = "";
+string second1 = "";
+string rootzero2 = "";
+string rootof;
+int tmp=0;
+double root1 = 0;
+char[] ident = { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u',
+'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', };
+String[] symbol = { "+", "-" };
+string[] spt = equation.Split('=');
+String just = spt[0].ToString();
+char[] p = new char[3];
+int pos = 0;
+foreach (char k in just)
+{
+if (pos == 0)
+{
+if (k == '-')
+{
+p[pos] = '-';
+}
+else
+{
+p[pos] = '+';
+}
+pos++;
+}
+else
+if (ident.Contains(k) == false)
+{
+if (k == '-')
+{
+p[pos] = '-';
+}
+else
+{
+p[pos] = '+';
+}
+pos++;
+}}
+string[] temp = just.Split(symbol, StringSplitOptions.RemoveEmptyEntries);
+string bb = "x2";
+string aa = "x";
+String temp1;
+int q = 0, w = 0, e = 0;
+int root = 0;
+double plus = 0;
+double neg = 0;
+double first=0;
+double second=0;
+double third=0;
+if (temp.Length == 3)
+{
+for (int i = 0; i < temp.Length; i++)
+{
+temp1 = temp[i].ToString();
+if (temp1.Contains(bb))
+{
+try
+{
+temp1 = temp1.Replace("x2", "");
+char[] ss = temp1.ToCharArray();
+String[] ws = new String[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "0" };
+char[] cc = temp1.ToCharArray();
+String wrd1 = "";
+for (int r = 0; r < cc.Length; r++)
+{
+if (ws.Contains(cc[r].ToString()))
+{
+wrd1 = wrd1 + cc[r];
+}}
+temp1 = wrd1;
+if (temp1.Equals(""))
+{
+if (p[i] == '+')
+{
+q = 1;
+}
+else
+{
+q = 1 * -1;
+}}
+else
+{
+q = Convert.ToInt32(temp1);
+if (p[i] == '-')
+{
+q = q * -1;
+}}}
+catch
+{
+q = 1;
+} }
+else if (temp1.Contains(aa))
+{
+try
+{
+temp1 = temp1.Replace("x", "");
+if (temp1.Equals(""))
+{
+if (p[i] == '+')
+{
+w = 1;
+}
+else
+{
+w = 1 * -1;
+} }
+else
+{
+w = Convert.ToInt32(temp1);
+if (p[i] == '-')
+{
+w = w * -1;
+}}}
+catch
+{
+w = 1;
+} }
+else
+{
+temp1 = temp[i].ToString();
+int d = Convert.ToInt32(temp1);
+if (p[i] == '+')
+{
+e = d;
+}
+else
+{
+e = d * -1;
+} } }
+if (!q.Equals("") && !w.Equals("") && !e.Equals(""))
+{
+root = (w * w) - (4 * q * e);
+b2 = root.ToString();
+ValueOfa = q.ToString();
+ValueOfb = w.ToString();
+ValueOfc = e.ToString();
+if (root < 0)
+{
+negate = " # root is negative number";
+}
+else if (root.Equals(0))
+{
+root1 = Math.Sqrt(root);
+rootzero = " # root is zero";
+third = -(w) / (2 * q);
+result = third.ToString();
+string k = q.ToString(); ;
+string o = w.ToString();
+string i = e.ToString();
+rootzero2 = o + "*" + o + "-" + 4 + "*" + k + "*" + i;
+thirdanswer = result;
+finalout = " #answer1=";
+}
+else
+{
+twoanswer = " # equations has two answers ";
+root1 = Math.Sqrt(root);
+rootof = root.ToString();
+plus = -(w) + root1;
+neg = -(w) - root1;
+first = plus / (2 * q);
+second = neg / (2 * q);
+firstanswer = "#answer1=";
+secondanswer = "#answer2=";
+first1 = first.ToString();
+second1 = second.ToString();
+result = first.ToString() + "#" + second.ToString();
+} }
+else
+{
+return("a ,b,c has not value");
+}
+op = "Quadratic equation" + Environment.NewLine;
+op = op + " " + "__________" + Environment.NewLine;
+op = op + " " + @"-b(+/-) \/b2-4ac" + Environment.NewLine;
+op = op + "X=----------------------------------------" + Environment.NewLine;
+op = op + " 2a" + Environment.NewLine;
+op = op + " A=" + q + "\n B=" + w + "\n C=" + e + Environment.NewLine;
+op = op + "Equation" + Environment.NewLine;
+op = op + " " + "__________" + Environment.NewLine;
+op = op + " " + @"-(" + w + @")(+/-) \/(" + w + ")2-4(" + q + "*" + e + ")" + Environment.NewLine;
+op = op + "X=----------------------------------------" + Environment.NewLine;
+op = op + " 2*" + q + Environment.NewLine;
+op = op + "\n" + "Discrimininant" + "\n" + "----------------" + "\n (b2-4ac)=(" + w + "*" + w + ")-(4*" + q + "*" + e + ")=" + Environment.NewLine;
+op = op + " _______________" + Environment.NewLine;
+op = op + @"\/(" + w + "*" + w + ")-4*" + q + "*" + e + " =" + root1 + Environment.NewLine;
+if (root1 >0)
+{
+double x1 = ((-1 * w) + root1) / (2 * q);
+op = op + Environment.NewLine;
+double x2 = ((-1 * w) - root1) / (2 * q);
+//////////////////////////////////////////////////////////////////////////////////////
+op = op + " " + "_______________" + Environment.NewLine;
+op = op + " " + @"-(" + w + @")(-) \/(" + w + "*" + w + ")-4(" + q + "*" + e + ")" + Environment.NewLine;
+op = op + "X=----------------------------------------=" + Environment.NewLine;
+op = op + " 2*" + q + Environment.NewLine;
+op = op + "=" + x1 + Environment.NewLine;
+//////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////
+op = op + " " + " _______________" + Environment.NewLine;
+op = op + " " + @"-(" + w + @")(+) \/(" + w + "*" + w + ")-4(" + q + "*" + e + ")" + Environment.NewLine;
+op = op + "X=----------------------------------------=" + Environment.NewLine;
+op = op + " 2*" + q + Environment.NewLine;
+op = op + "=" + x2 + Environment.NewLine;
+//////////////////////////////////////////////////////////////////////////////////////
+op = op + "\n" + "x are " + x1 + " and " + x2 + "\n -------------------------";
+}
+else if(root1.Equals(0)){
+double x1 = ((-1 * w) + root1) / (2 * q);
+op = op + Environment.NewLine;
+op = op + " " + "_______________" + Environment.NewLine;
+op = op + " " + @"-(" + w + @")(-) \/(" + w + "*" + w + ")-4(" + q + "*" + e + ")"
++ Environment.NewLine;
+op = op + "X=----------------------------------------=" + Environment.NewLine;
+op = op + " 2*" + q + Environment.NewLine;
+op = op + "=" + x1 + Environment.NewLine;
+op = op + "\n" + "x is " + x1 + "\n -------------------------";
+}
+else
+{
+op = "root is negative";
+}}
+return (op);
+}
